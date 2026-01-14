@@ -7,6 +7,11 @@ const memberSchema = new Schema({
         ref:"User",
         required:true,
     },
+    workspace:{
+        type:Schema.Types.ObjectId,
+        ref:"Workspace",
+        required:true,
+    },
     role:{
         type:Schema.Types.ObjectId,
         ref:"Role",

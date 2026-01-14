@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "seed":"node src/seeders/role.seeder.js",
+    "seed": "node src/seeders/role.seeder.js",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
@@ -20,7 +20,7 @@
     "express": "^5.2.1",
     "mongoose": "^9.1.2",
     "passport": "^0.7.0",
-    "passport-google-auth": "^1.0.2",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "uuid": "^13.0.0",
     "zod": "^4.3.5"
