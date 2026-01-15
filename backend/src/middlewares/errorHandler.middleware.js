@@ -1,5 +1,5 @@
-import { HTTPSTATUS } from "../configs/http.config";
-import { AppError } from "../utils/appError";
+import { HTTPSTATUS } from "../configs/http.config.js";
+import { AppError } from "../utils/appError.js";
 
 export const errorHandler = (error,req,res,next)=>{
 

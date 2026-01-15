@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { Permissions, Roles } from "../enum/role-permission.enum.js";
-import { RolePermissions } from "../utils/role-permission.ks";
+import { RolePermissions } from "../utils/role-permission.js";
 
 
 const roleSchema = new Schema({

@@ -14,3 +14,6 @@ authRoutes.get("/google", passport.authenticate("google", {
 authRoutes.get("/google/callback", passport.authenticate("google", {
     failureRedirect: failedUrl,
 }),googleLoginCallback);
+
+
+export default authRoutes;

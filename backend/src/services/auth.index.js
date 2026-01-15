@@ -4,7 +4,7 @@ import Account from "../models/account.model.js";
 import Workspace from "../models/workspace.model.js";
 import { Roles } from "../enum/role-permission.enum.js";
 import Role from "../models/roles-permissions.model.js";
-import Member from "../models/member.model";
+import Member from "../models/member.model.js";
 
 
 export const loginOrCreatAccountService = async (data) => {

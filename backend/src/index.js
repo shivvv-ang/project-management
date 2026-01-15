@@ -1,10 +1,13 @@
 import "dotenv/config"
 import express  from "express";
 import cors from "cors";
-import session from "cookie-session";
+import cookieSession  from "cookie-session";
 import { config } from "./configs/app.config.js";
 import connectDb from "./configs/database.config.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
+import "./configs/passport.config.js";
+import passport from "passport";
+import authRoutes from "./routes/auth.route.js";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -12,7 +15,7 @@ const BASE_PATH = config.BASE_PATH;
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
-app.use(session({
+app.use(cookieSession({
     name:"session",
     keys:[config.SESSION_SECRET],
     maxAge:24*60*60*1000,
@@ -20,6 +23,9 @@ app.use(session({
     httpOnly:true,
     sameSite:"lax"
 }))
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(
     cors({
@@ -29,6 +35,9 @@ app.use(
 )
 
 app.use(errorHandler);
+
+
+app.use(`${BASE_PATH}/auth`,authRoutes);
 
 app.listen(config.PORT,async()=>{
     console.log(`Server listening on Port ${config.PORT} in ${config.NODE_ENV}`);
