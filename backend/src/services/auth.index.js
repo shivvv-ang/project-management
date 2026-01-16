@@ -5,6 +5,8 @@ import Workspace from "../models/workspace.model.js";
 import { Roles } from "../enum/role-permission.enum.js";
 import Role from "../models/roles-permissions.model.js";
 import Member from "../models/member.model.js";
+import { NotFoundException } from "../utils/appError.js";
+
 
 
 export const loginOrCreatAccountService = async (data) => {
@@ -13,7 +15,7 @@ export const loginOrCreatAccountService = async (data) => {
     try {
         session.startTransaction();
 
-        let user = User.findOne({ email }).session(session);
+        let user = await User.findOne({ email }).session(session);
 
         if (!user) {
             user = new User({
@@ -38,7 +40,7 @@ export const loginOrCreatAccountService = async (data) => {
 
             await workspace.save({ session });
 
-            const ownerRole = await Role.findOne({ name: Roles.OWNER }).session({ session });
+            const ownerRole = await Role.findOne({ name: Roles.OWNER }).session(session);
 
             if (!ownerRole) {
                 throw new NotFoundException("Owner role not found");

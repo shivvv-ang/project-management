@@ -1,7 +1,7 @@
 import "dotenv/config"
 import express  from "express";
 import cors from "cors";
-import cookieSession  from "cookie-session";
+import session from "express-session";
 import { config } from "./configs/app.config.js";
 import connectDb from "./configs/database.config.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
@@ -15,14 +15,23 @@ const BASE_PATH = config.BASE_PATH;
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
-app.use(cookieSession({
-    name:"session",
-    keys:[config.SESSION_SECRET],
-    maxAge:24*60*60*1000,
-    secure:config.NODE_ENV==="production",
-    httpOnly:true,
-    sameSite:"lax"
-}))
+
+
+app.use(
+    session({
+        name: "session",
+        secret: config.SESSION_SECRET, 
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: config.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 24 * 60 * 60 * 1000,
+        },
+    })
+  );
+  
 
 app.use(passport.initialize());
 app.use(passport.session());

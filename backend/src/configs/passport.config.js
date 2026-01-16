@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20"
 import { config } from "./app.config.js";
 import { providerEnum } from "../enum/account-provider.enum.js";
 import { loginOrCreatAccountService } from "../services/auth.index.js";
+import User from "../models/user.model.js";
 
 passport.use(new GoogleStrategy({
     clientID: config.GOOGLE_CLIENT_ID,
@@ -35,6 +36,11 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.serializeUser((user,cb)=>cb(null,user));
+passport.serializeUser((user, done) => {
+    done(null, user._id); 
+});
 
-passport.deserializeUser((user, cb) => cb(null, user));
+passport.deserializeUser(async (id, done) => {
+    const user = await User.findById(id);
+    done(null, user);
+});

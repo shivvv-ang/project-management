@@ -27,13 +27,12 @@ const userSchema = new Schema({
     lastLogin: { type: Date, default: null }
 }, { timestamps: true });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
     if (this.isModified("password")) {
         if (this.password) {
             this.password = await hashValue(this.password);
         }
     }
-    next();
 })
 
 userSchema.methods.omitPassword = function () {
