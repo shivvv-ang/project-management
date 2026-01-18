@@ -28,12 +28,12 @@ const userSchema = new Schema({
 }, { timestamps: true });
 
 userSchema.pre("save", async function () {
-    if (this.isModified("password")) {
-        if (this.password) {
-            this.password = await hashValue(this.password);
-        }
-    }
-})
+
+    if (!this.isModified("password")) return;
+    if (!this.password) return;
+
+    this.password = await hashValue(this.password);
+});
 
 userSchema.methods.omitPassword = function () {
     const userObject = this.toObject();
