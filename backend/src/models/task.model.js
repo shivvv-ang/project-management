@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
-import { generateTaskCode } from "../utils/uuid";
-import { TaskPriorityEnum, TaskStatusEnum } from "../enum/task.enum";
+import { generateTaskCode } from "../utils/uuid.js";
+import { TaskPriorityEnum, TaskStatusEnum } from "../enum/task.enum.js";
 
 
 const taskSchema = Schema({
