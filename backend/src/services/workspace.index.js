@@ -4,6 +4,7 @@ import Member from "../models/member.model.js";
 import Role from "../models/roles-permissions.model.js";
 import User from "../models/user.model.js";
 import Workspace from "../models/workspace.model.js";
+import Project from "../models/project.model.js";
 import { BadRequestException, NotFoundException } from "../utils/appError.js";
 import Task from "../models/task.model.js";
 import { TaskStatusEnum } from "../enum/task.enum.js";
@@ -188,7 +189,7 @@ export const deleteWorkspaceService = async (workspaceId, userId) => {
             throw new NotFoundException("Workspace not found");
         }
 
-       
+
         if (!workspace.owner.equals(new mongoose.Types.ObjectId(userId))) {
             throw new BadRequestException(
                 "You are not authorized to delete this workspace"
@@ -207,17 +208,17 @@ export const deleteWorkspaceService = async (workspaceId, userId) => {
         await Task.deleteMany({ workspace: workspace._id }).session(session);
 
         await Member.deleteMany({
-            workspaceId: workspace._id,
+            workspace: workspace._id,
         }).session(session);
 
-     
+
         if (user?.currentWorkspace?.equals(workspaceId)) {
             const memberWorkspace = await Member.findOne({ userId }).session(
                 session
             );
 
             user.currentWorkspace = memberWorkspace
-                ? memberWorkspace.workspaceId
+                ? memberWorkspace.workspace
                 : null;
 
             await user.save({ session });

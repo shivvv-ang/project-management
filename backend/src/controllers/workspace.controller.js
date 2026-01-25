@@ -128,8 +128,8 @@ export const deleteWorkspaceById = asyncHandler(async(req,res)=>{
 
     const userId = req?.user;
 
-    const { role } = await getMemberRoleinWorkspace(userId, workspaceId);
-    roleGuard(role, [Permissions.DELETE_WORKSPACE]);
+    const { roleName } = await getMemberRoleinWorkspace(userId, workspaceId);
+    roleGuard(roleName, [Permissions.DELETE_WORKSPACE]);
 
     const { currentWorkspace } = await deleteWorkspaceService(
         workspaceId,
