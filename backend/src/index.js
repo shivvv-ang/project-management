@@ -13,6 +13,7 @@ import isAuthenticated from "./middlewares/isAuthenticated.middleware.js";
 import workspaceRoutes from "./routes/workspace.route.js";
 import memberRoutes from "./routes/member.route.js";
 import projectRoutes from "./routes/project.route.js";
+import taskRoutes from "./routes/task.route.js";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -56,6 +57,7 @@ app.use(`${BASE_PATH}/user`, isAuthenticated,userRoutes);
 app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
 app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
+app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
 app.listen(config.PORT,async()=>{
     console.log(`Server listening on Port ${config.PORT} in ${config.NODE_ENV}`);
