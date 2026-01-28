@@ -51,7 +51,7 @@ export const createWorkspaceService = async (userId, body) => {
 }
 
 
-export const getAllWorkspaceUserisMemberService = async (userId) => {
+export const getUserWorkspacesService = async (userId) => {
 
     const memberships = await Member.find({ userId }).populate("workspace").exec();
 
@@ -83,7 +83,7 @@ export const getWorkspaceByIdService = async (workspaceId) => {
 };
 
 
-export const getWorkspaceMemberService = async (workspace) => {
+export const getWorkspaceMembersService = async (workspace) => {
 
     if (!mongoose.Types.ObjectId.isValid(workspace)) {
         throw new BadRequestException("Invalid workspace id");
@@ -125,45 +125,46 @@ export const getWorkspaceAnalyticsService = async (workspace) => {
 }
 
 
-export const changeMemberRoleService = async (workspaceId, memberId, roleId) => {
+export const updateWorkspaceMemberRoleService
+    = async (workspaceId, memberId, roleId) => {
 
-    const isValidIds = [workspaceId, memberId, roleId].every((id) =>
-        mongoose.Types.ObjectId.isValid(id)
-    );
+        const isValidIds = [workspaceId, memberId, roleId].every((id) =>
+            mongoose.Types.ObjectId.isValid(id)
+        );
 
-    if (!isValidIds) {
-        throw new BadRequestException("Invalid id provided");
+        if (!isValidIds) {
+            throw new BadRequestException("Invalid id provided");
+        }
+
+        const workspace = await Workspace.findById(workspaceId);
+
+        if (!workspace) {
+            throw new NotFoundException("Workspace not found");
+        }
+
+        const role = await Role.findById(roleId);
+        if (!role) {
+            throw new NotFoundException("Role not found");
+        }
+
+        const member = await Member.findOne({
+            userId: memberId,
+            workspace: workspaceId,
+        });
+
+        if (!member) {
+            throw new Error("Member not found in the workspace");
+        }
+
+        member.role = role;
+        await member.save();
+
+        return {
+            member,
+        };
     }
 
-    const workspace = await Workspace.findById(workspaceId);
-
-    if (!workspace) {
-        throw new NotFoundException("Workspace not found");
-    }
-
-    const role = await Role.findById(roleId);
-    if (!role) {
-        throw new NotFoundException("Role not found");
-    }
-
-    const member = await Member.findOne({
-        userId: memberId,
-        workspace: workspaceId,
-    });
-
-    if (!member) {
-        throw new Error("Member not found in the workspace");
-    }
-
-    member.role = role;
-    await member.save();
-
-    return {
-        member,
-    };
-}
-
-export const updateWorkspaceByIdService = async (workspaceId, name, description) => {
+export const updateWorkspaceService = async (workspaceId, name, description) => {
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) {
         throw new NotFoundException("Workspace not found");
