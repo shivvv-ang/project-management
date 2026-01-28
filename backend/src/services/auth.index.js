@@ -57,10 +57,13 @@ export const loginOrCreatAccountService = async (data) => {
             user.currentWorkspace = workspace._id;
             await user.save({ session });
         }
-        await session.commitTransaction();
-        session.endSession();
 
-        return { user };
+        const safeUser = user.omitPassword?.() ?? user;
+
+        await session.commitTransaction();
+
+        return { safeUser };
+
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
@@ -75,14 +78,14 @@ export const registerUserService = async (data) => {
     const session = await mongoose.startSession();
 
     try {
-        
+
         session.startTransaction();
 
         const existingUser = await User.findOne({ email }).session(session);
+
         if (existingUser) {
             throw new BadRequestException("Email already exists");
         }
-
 
         const user = new User({
             email,
@@ -107,6 +110,7 @@ export const registerUserService = async (data) => {
         await workspace.save({ session });
 
         const ownerRole = await Role.findOne({ name: Roles.OWNER }).session(session);
+
         if (!ownerRole) {
             throw new NotFoundException("Owner role not found");
         }
@@ -138,13 +142,8 @@ export const registerUserService = async (data) => {
 
 
 export const verifyUserService = async (
-    { email, password, provider = providerEnum.EMAIL }
+    { email, password }
 ) => {
-    const account = await Account.findOne({ provider, providerId: email });
-
-    if (!account) {
-        throw new NotFoundException("Invalid Credentials");
-    }
 
     const user = await User.findOne({ email }).select("+password");
 
@@ -158,5 +157,5 @@ export const verifyUserService = async (
         throw new UnAuthorizedException("Invalid Credentials");
     }
 
-    return user.omitPassword();
+    return user.omitPassword?.() ?? user;
 }

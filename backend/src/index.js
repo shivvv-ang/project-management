@@ -1,6 +1,7 @@
 import "dotenv/config"
 import express  from "express";
 import cors from "cors";
+import helmet from "helmet";
 import session from "express-session";
 import { config } from "./configs/app.config.js";
 import connectDb from "./configs/database.config.js";
@@ -20,9 +21,7 @@ const BASE_PATH = config.BASE_PATH;
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
-
-
+app.use(helmet());
 app.use(
     session({
         name: "session",
@@ -49,9 +48,6 @@ app.use(
     })
 )
 
-app.use(errorHandler);
-
-
 app.use(`${BASE_PATH}/auth`,authRoutes);
 app.use(`${BASE_PATH}/user`, isAuthenticated,userRoutes);
 app.use(`${BASE_PATH}/workspace`, isAuthenticated, workspaceRoutes);
@@ -59,7 +55,13 @@ app.use(`${BASE_PATH}/member`, isAuthenticated, memberRoutes);
 app.use(`${BASE_PATH}/project`, isAuthenticated, projectRoutes);
 app.use(`${BASE_PATH}/task`, isAuthenticated, taskRoutes);
 
-app.listen(config.PORT,async()=>{
-    console.log(`Server listening on Port ${config.PORT} in ${config.NODE_ENV}`);
+app.use(errorHandler);
+
+const startServer = async () => {
     await connectDb();
-})
+    app.listen(config.PORT, () => {
+        console.log(`Server running on ${config.PORT}`);
+    });
+};
+
+startServer();

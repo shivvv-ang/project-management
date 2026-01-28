@@ -5,6 +5,7 @@ import { config } from "./app.config.js";
 import { providerEnum } from "../enum/account-provider.enum.js";
 import { loginOrCreatAccountService, verifyUserService } from "../services/auth.index.js";
 import User from "../models/user.model.js";
+import { NotFoundException } from "../utils/appError.js";
 
 
 passport.use(new GoogleStrategy({
@@ -24,14 +25,14 @@ passport.use(new GoogleStrategy({
                 throw new NotFoundException("Google ID (sub) is missing");
             }
 
-            const { user } = await loginOrCreatAccountService({
+            const { safeUser } = await loginOrCreatAccountService({
                 provider: providerEnum.GOOGLE,
                 displayName: profile.displayName,
                 providerId: googleId,
                 picture: picture,
                 email: email
             })
-            return cb(null, user);
+            return cb(null, safeUser);
         } catch (error) {
             cb(error, false);
         }
@@ -59,6 +60,11 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-    const user = await User.findById(id);
-    done(null, user);
+    try {
+        const user = await User.findById(id);
+        if (!user) return done(null, false);
+        done(null, user._id || user.id);
+    } catch (err) {
+        done(err);
+    }
 });

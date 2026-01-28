@@ -35,5 +35,7 @@ const accountSchema = new Schema({
     }
 });
 
+accountSchema.index({ userId: 1, provider: 1 }, { unique: true });
+
 const Account = model("Account", accountSchema);
 export default Account;
