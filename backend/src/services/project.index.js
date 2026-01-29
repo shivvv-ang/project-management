@@ -4,7 +4,7 @@ import Project from "../models/project.model.js"
 import Task from "../models/task.model.js";
 import { NotFoundException } from "../utils/appError.js";
 
-export const createProjectService = async (userId, workspaceId, body) => {
+export const createProjectInWorkspaceService = async (userId, workspaceId, body) => {
     const project = new Project({
         ...(body.emoji && { emoji: body.emoji }),
         name: body.name,
@@ -18,21 +18,21 @@ export const createProjectService = async (userId, workspaceId, body) => {
     return { project };
 }
 
-export const getProjectsInWorkspaceService = async (workspaceId, pageSize, pageNumber) => {
+export const getProjectsInWorkspaceService = async (workspaceId, PageSize, pageNumber) => {
     const totoalDocs = await Project.countDocuments({ workspace: workspaceId });
 
-    const skip = (pageNumber - 1) * pageSize;
+    const skip = (pageNumber - 1) * PageSize;
 
     const projects = await Project.find({
         workspace: workspaceId
-    }).skip(skip).limit(pageSize).populate("createdBy", "_id name profilePicture -password").sort({ createdAt: -1 });
+    }).skip(skip).limit(PageSize).populate("createdBy", "_id name profilePicture -password").sort({ createdAt: -1 });
 
-    const totalPages = Math.ceil(totoalDocs / pageSize);
+    const totalPages = Math.ceil(totoalDocs / PageSize);
 
     return { projects, totoalDocs, totalPages, skip }
 }
 
-export const getProjectByIdAndWorkspaceIdservice = async (workspaceId, projectId) => {
+export const getProjectByIdInWorkspaceService = async (workspaceId, projectId) => {
 
     const project = await Project.findOne({ _id: projectId, workspace: workspaceId }).select("_id name description");
 
@@ -43,12 +43,12 @@ export const getProjectByIdAndWorkspaceIdservice = async (workspaceId, projectId
     return { project };
 }
 
-export const getProjectAnalyticService = async (workspaceId, projectId) => {
+export const getProjectAnalyticsService = async (workspaceId, projectId) => {
 
     const project = await Project.findById(projectId);
 
     if (!project || project.workspace.toString() !== workspaceId.toString()) {
-        throw new NotFoundException("project not found");
+        throw new NotFoundException("Project not found");
     }
 
     const currentDate = new Date();
@@ -57,6 +57,7 @@ export const getProjectAnalyticService = async (workspaceId, projectId) => {
         {
             $match: {
                 project: new mongoose.Types.ObjectId(projectId),
+                workspace: new mongoose.Types.ObjectId(workspaceId),
             },
         },
         {
@@ -99,7 +100,7 @@ export const getProjectAnalyticService = async (workspaceId, projectId) => {
 }
 
 
-export const updateProjectService = async (
+export const updateProjectInWorkspaceService = async (
     workspaceId,
     projectId,
     body
@@ -113,7 +114,7 @@ export const updateProjectService = async (
 
     if (!project) {
         throw new NotFoundException(
-            "Project not found or does not belong to the specified workspace"
+            "Project not found"
         );
     }
 
@@ -137,7 +138,7 @@ export const deleteProjectService = async (
 
     if (!project) {
         throw new NotFoundException(
-            "Project not found or does not belong to the specified workspace"
+            "Project not found"
         );
     }
 

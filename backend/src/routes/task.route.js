@@ -5,21 +5,21 @@ import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from "..
 const taskRoutes = Router();
 
 taskRoutes.post(
-    "/:projectId/:workspaceId/create",
+    " /workspace/:workspaceId/project/:projectId/task",
     createTask
 );
 
-taskRoutes.delete("/:taskId/:workspaceId/delete", deleteTask);
+taskRoutes.delete("/workspace/:workspaceId/task/:taskId", deleteTask);
 
 taskRoutes.put(
-    "/:taskId/:projectId/:workspaceId/update",
+    " /workspace/:workspaceId/project/:projectId/task/:taskId",
     updateTask
 );
 
-taskRoutes.get("/:workspaceId/all", getAllTasks);
+taskRoutes.get(" /workspace/:workspaceId/task", getAllTasks);
 
 taskRoutes.get(
-    "/:taskId/:projectId/:workspaceId",
+    "/workspace/:workspaceId/project/:projectId/task/:taskId",
     getTaskById
 );
 

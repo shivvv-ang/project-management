@@ -2,7 +2,7 @@
 import { asyncHandler } from "../middlewares/asyncHandle.middleware.js";
 import { getMemberRoleinWorkspace } from "../services/member.index.js";
 import { roleGuard } from "../utils/roleGuard.js";
-import { createTaskService, deleteTaskService, getAllTasksService, getTaskByIdService, updateTaskService } from "../services/task.index.js";
+import { createTaskService, deleteTaskService, getAllTasksService, getTaskByIdInWorkspaceService, updateTaskInWorkspaceService } from "../services/task.index.js";
 import { createTaskSchema, updateTaskSchema } from "../validators/task.validation.js";
 import { HTTPSTATUS } from "../configs/http.config.js";
 import { Permissions } from "../enum/role-permission.enum.js";
@@ -12,8 +12,8 @@ export const createTask = asyncHandler(
         const userId = req.user?._id;
 
         const body = createTaskSchema.parse(req.body);
-        const projectId = req.params.projectId;
-        const workspaceId = req.params.workspaceId;
+
+        const { projectId, workspaceId } = req.params;
 
         const { roleName } = await getMemberRoleinWorkspace(userId, workspaceId);
 
@@ -26,7 +26,7 @@ export const createTask = asyncHandler(
             body
         );
 
-        return res.status(HTTPSTATUS.OK).json({
+        return res.status(HTTPSTATUS.CREATED).json({
             message: "Task created successfully",
             task,
         });
@@ -39,15 +39,12 @@ export const updateTask = asyncHandler(
 
         const body = updateTaskSchema.parse(req.body);
 
-        const taskId = req.params.taskId;
-        const projectId = req.params.projectId;
-        const workspaceId = req.params.workspaceId;
-
+        const { taskId, projectId, workspaceId } = req.params;
 
         const { roleName } = await getMemberRoleinWorkspace(userId, workspaceId);
         roleGuard(roleName, [Permissions.EDIT_TASK]);
 
-        const { updatedTask } = await updateTaskService(
+        const { updatedTask } = await updateTaskInWorkspaceService(
             workspaceId,
             projectId,
             taskId,
@@ -103,14 +100,12 @@ export const getTaskById = asyncHandler(
     async (req, res) => {
         const userId = req.user?._id;
 
-        const taskId = req.params.taskId;
-        const projectId = req.params.projectId;
-        const workspaceId = req.params.workspaceId;
+        const { taskId, projectId, workspaceId } = req.params;
 
         const { roleName } = await getMemberRoleinWorkspace(userId, workspaceId);
         roleGuard(roleName, [Permissions.VIEW_ONLY]);
 
-        const task = await getTaskByIdService(workspaceId, projectId, taskId);
+        const task = await getTaskByIdInWorkspaceService(workspaceId, projectId, taskId);
 
         return res.status(HTTPSTATUS.OK).json({
             message: "Task fetched successfully",
@@ -123,8 +118,7 @@ export const deleteTask = asyncHandler(
     async (req, res) => {
         const userId = req.user?._id;
 
-        const taskId = req.params.taskId;
-        const workspaceId = req.params.workspaceId;
+        const { taskId, workspaceId } = req.params;
 
         const { roleName } = await getMemberRoleinWorkspace(userId, workspaceId);
         roleGuard(roleName, [Permissions.DELETE_TASK]);

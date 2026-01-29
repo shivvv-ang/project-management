@@ -16,7 +16,7 @@ export const createTaskService = async (
 
     if (!project || project.workspace.toString() !== workspaceId.toString()) {
         throw new NotFoundException(
-            "Project not found or does not belong to this workspace"
+            "Project not found"
         );
     }
     if (assignedTo) {
@@ -26,7 +26,7 @@ export const createTaskService = async (
         });
 
         if (!isAssignedUserMember) {
-            throw new Error("Assigned user is not a member of this workspace.");
+            throw new Error("Assigned user must be a member of this workspace");
         }
     }
     const task = new Task({
@@ -46,7 +46,7 @@ export const createTaskService = async (
     return { task };
 };
 
-export const updateTaskService = async (
+export const updateTaskInWorkspaceService = async (
     workspaceId,
     projectId,
     taskId,
@@ -56,7 +56,7 @@ export const updateTaskService = async (
 
     if (!project || project.workspace.toString() !== workspaceId.toString()) {
         throw new NotFoundException(
-            "Project not found or does not belong to this workspace"
+            "Project not found"
         );
     }
 
@@ -64,15 +64,13 @@ export const updateTaskService = async (
 
     if (!task || task.project.toString() !== projectId.toString()) {
         throw new NotFoundException(
-            "Task not found or does not belong to this project"
+            "Task not found"
         );
     }
 
     const updatedTask = await Task.findByIdAndUpdate(
-        taskId,
-        {
-            ...body,
-        },
+        { _id: taskId, project: projectId, workspace: workspaceId },
+        body,
         { new: true }
     );
 
@@ -108,7 +106,7 @@ export const getAllTasksService = async (
         query.assignedTo = { $in: filters.assignedTo };
     }
 
-    if (filters.keyword && filters.keyword !== undefined) {
+    if (filters.keyword) {
         query.title = { $regex: filters.keyword, $options: "i" };
     }
 
@@ -146,7 +144,7 @@ export const getAllTasksService = async (
     };
 };
 
-export const getTaskByIdService = async (
+export const getTaskByIdInWorkspaceService = async (
     workspaceId,
     projectId,
     taskId
@@ -155,7 +153,7 @@ export const getTaskByIdService = async (
 
     if (!project || project.workspace.toString() !== workspaceId.toString()) {
         throw new NotFoundException(
-            "Project not found or does not belong to this workspace"
+            "Project not found"
         );
     }
 
@@ -183,7 +181,7 @@ export const deleteTaskService = async (
 
     if (!task) {
         throw new NotFoundException(
-            "Task not found or does not belong to the specified workspace"
+            "Task not found."
         );
     }
 
